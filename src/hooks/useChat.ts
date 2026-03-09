@@ -10,7 +10,6 @@ export interface UseChatReturn {
   messages: Message[];
   isLoading: boolean;
   isStreaming: boolean;
-  isTyping: boolean; // True while typewriter effect is active
   error: string | null;
   
   // Actions
@@ -58,8 +57,8 @@ function getErrorMessage(response: ApiResponse<any>, context: 'send' | 'load' | 
 }
 
 // Typewriter configuration
-const TYPEWRITER_CHAR_DELAY_MS = 5; // Delay between each character (lower = faster)
-const TYPEWRITER_CHUNK_SIZE = 1; // Number of characters to render per tick
+const TYPEWRITER_CHAR_DELAY_MS = 20;
+const TYPEWRITER_CHUNK_SIZE = 2;
 
 export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
   const { isAnonymous = false } = options;
@@ -68,10 +67,8 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isTyping, setIsTyping] = useState(false); // Typewriter effect active
   const [error, setError] = useState<string | null>(null);
-  
-  // Ref to track streaming message ID for updates
+
   const streamingMessageIdRef = useRef<string | null>(null);
   
   // Refs for typewriter effect
@@ -84,9 +81,8 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
   const createChat = useCallback(async (request: CreateChatRequest) => {
     setIsLoading(true);
     setIsStreaming(false);
-    setIsTyping(false);
     setError(null);
-    
+
     // Reset typewriter state
     pendingTextRef.current = '';
     displayedTextRef.current = '';
@@ -144,7 +140,7 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
           // Create placeholder for streaming assistant message
           const streamingMessageId = `streaming_${Date.now()}`;
           streamingMessageIdRef.current = streamingMessageId;
-          
+
           const streamingMessage: Message = {
             id: streamingMessageId,
             chatId: chat.id,
@@ -202,17 +198,15 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
                 
                 return newMessages;
               });
-              
+
               streamingMessageIdRef.current = null;
               setIsStreaming(false);
-              setIsTyping(false);
               setIsLoading(false);
             }
           };
-          
+
           const startTypewriter = () => {
             if (!typewriterIntervalRef.current) {
-              setIsTyping(true);
               typewriterIntervalRef.current = setInterval(typewriterTick, TYPEWRITER_CHAR_DELAY_MS);
             }
           };
@@ -245,14 +239,13 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
                 
                 return newMessages;
               });
-              
+
               streamingMessageIdRef.current = null;
               setIsStreaming(false);
-              setIsTyping(false);
               setIsLoading(false);
             }
           };
-          
+
           const onError = (errorMsg: string) => {
             if (typewriterIntervalRef.current) {
               clearInterval(typewriterIntervalRef.current);
@@ -264,16 +257,15 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             finalMessageRef.current = null;
             
             // Keep user message but remove streaming message
-            setMessages(prev => prev.filter(msg => 
+            setMessages(prev => prev.filter(msg =>
               msg.id !== streamingMessageIdRef.current
             ));
             streamingMessageIdRef.current = null;
             setError(errorMsg);
             setIsStreaming(false);
-            setIsTyping(false);
             setIsLoading(false);
           };
-          
+
           // Send message via streaming
           try {
             if (isAnonymous) {
@@ -326,12 +318,11 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
 
   const sendMessage = useCallback(async (content: string, options?: { model?: string }) => {
     if (!currentChat || !content.trim()) return;
-    
+
     setIsLoading(true);
     setIsStreaming(false);
-    setIsTyping(false);
     setError(null);
-    
+
     // Reset typewriter state
     pendingTextRef.current = '';
     displayedTextRef.current = '';
@@ -350,7 +341,7 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
     // Create placeholder for streaming assistant message
     const streamingMessageId = `streaming_${Date.now()}`;
     streamingMessageIdRef.current = streamingMessageId;
-    
+
     const streamingMessage: Message = {
       id: streamingMessageId,
       chatId: currentChat.id,
@@ -412,10 +403,9 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
           
           return newMessages;
         });
-        
+
         streamingMessageIdRef.current = null;
         setIsStreaming(false);
-        setIsTyping(false);
         setIsLoading(false);
       }
     };
@@ -423,7 +413,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
     // Start typewriter interval
     const startTypewriter = () => {
       if (!typewriterIntervalRef.current) {
-        setIsTyping(true);
         typewriterIntervalRef.current = setInterval(typewriterTick, TYPEWRITER_CHAR_DELAY_MS);
       }
     };
@@ -463,10 +452,9 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
           
           return newMessages;
         });
-        
+
         streamingMessageIdRef.current = null;
         setIsStreaming(false);
-        setIsTyping(false);
         setIsLoading(false);
       }
       // Otherwise, typewriter will finalize when pending buffer is empty
@@ -484,13 +472,12 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
       finalMessageRef.current = null;
       
       // Remove streaming message on error
-      setMessages(prev => prev.filter(msg => 
+      setMessages(prev => prev.filter(msg =>
         msg.id !== streamingMessageIdRef.current && msg.id !== userMessage.id
       ));
       streamingMessageIdRef.current = null;
       setError(errorMsg);
       setIsStreaming(false);
-      setIsTyping(false);
       setIsLoading(false);
     };
 
@@ -553,7 +540,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
     messages,
     isLoading,
     isStreaming,
-    isTyping,
     error,
     createChat,
     loadChat,

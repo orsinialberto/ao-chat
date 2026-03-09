@@ -16,19 +16,17 @@ interface ChatInterfaceProps {
 interface MessageItemProps {
   message: Message;
   copiedMessageId: string | null;
-  isTyping: boolean; // True when typewriter effect is active for this message
   onCopy: (message: Message) => void;
   onDownload: (message: Message) => void;
   t: (key: string) => string;
 }
 
-const MessageItem: React.FC<MessageItemProps> = React.memo(({ 
-  message, 
-  copiedMessageId, 
-  isTyping,
-  onCopy, 
-  onDownload, 
-  t 
+const MessageItem: React.FC<MessageItemProps> = React.memo(({
+  message,
+  copiedMessageId,
+  onCopy,
+  onDownload,
+  t
 }) => {
   const isUser = message.role === 'user';
 
@@ -48,7 +46,6 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
                 content={message.content} 
                 className="text-sm"
               />
-              {isTyping && <span className="typewriter-cursor inline-block" />}
             </div>
             {/* Copy, Download buttons and timestamp row */}
             <div className="flex items-center justify-between mt-1">
@@ -127,20 +124,16 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
     </div>
   );
 }, (prevProps, nextProps) => {
-  // Only re-render if message content changes, typing state changes, or copied state changes
-  const messageChanged = 
+  const messageChanged =
     prevProps.message.id !== nextProps.message.id ||
     prevProps.message.content !== nextProps.message.content ||
     prevProps.message.createdAt !== nextProps.message.createdAt;
-  
-  const typingStateChanged = prevProps.isTyping !== nextProps.isTyping;
-  
-  const copiedStateChanged = 
-    (prevProps.copiedMessageId === prevProps.message.id) !== 
+
+  const copiedStateChanged =
+    (prevProps.copiedMessageId === prevProps.message.id) !==
     (nextProps.copiedMessageId === nextProps.message.id);
-  
-  // Re-render if message changed, typing state changed, or copied state for this message changed
-  return !messageChanged && !typingStateChanged && !copiedStateChanged;
+
+  return !messageChanged && !copiedStateChanged;
 });
 
 MessageItem.displayName = 'MessageItem';
@@ -155,16 +148,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const notifiedChatIdsRef = useRef<Set<string>>(new Set())
   const { t } = useTranslation()
-  const { 
-    currentChat, 
-    messages, 
+  const {
+    currentChat,
+    messages,
     isLoading,
     isStreaming,
-    isTyping,
-    error, 
-    createChat, 
+    error,
+    createChat,
     loadChat,
-    sendMessage, 
+    sendMessage,
     clearError,
     resetChat
   } = useChat({ isAnonymous })
@@ -303,7 +295,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
               key={message.id}
               message={message}
               copiedMessageId={copiedMessageId}
-              isTyping={isTyping && message.id.startsWith('streaming_')}
               onCopy={handleCopyMessage}
               onDownload={handleDownloadMessage}
               t={t}
