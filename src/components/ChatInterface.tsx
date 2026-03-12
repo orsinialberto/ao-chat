@@ -147,6 +147,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const notifiedChatIdsRef = useRef<Set<string>>(new Set())
+  const userHasScrolledUpRef = useRef(false)
+  const lastAutoScrollTimeRef = useRef(0)
+  const SCROLL_NEAR_BOTTOM_PX = 80
+  const AUTO_SCROLL_THROTTLE_MS = 150
   const { t } = useTranslation()
   const {
     currentChat,
@@ -191,18 +195,37 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
     }
   }, [currentChat, currentChatId, onChatCreated])
 
-  // Auto-scroll to bottom when messages change (smooth scrolling)
-  // Only auto-scroll if user is near the bottom (within 150px threshold)
+  // Track when user scrolls up so we don’t force them back to bottom while streaming
   useEffect(() => {
     const container = messagesContainerRef.current
-    if (container && messagesEndRef.current) {
-      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
-      
-      // Auto-scroll if user is near bottom or if streaming is active
-      if (isNearBottom || isStreaming) {
-        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    if (!container) return
+    const onScroll = () => {
+      const fromBottom = container.scrollHeight - container.scrollTop - container.clientHeight
+      if (fromBottom > SCROLL_NEAR_BOTTOM_PX) {
+        userHasScrolledUpRef.current = true
+      } else {
+        userHasScrolledUpRef.current = false
       }
     }
+    container.addEventListener('scroll', onScroll, { passive: true })
+    return () => container.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // When a new request starts, resume following scroll for the new response
+  useEffect(() => {
+    if (isLoading) userHasScrolledUpRef.current = false
+  }, [isLoading])
+
+  // Auto-scroll to bottom when messages change; never override if user has scrolled up
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (!container || !messagesEndRef.current) return
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < SCROLL_NEAR_BOTTOM_PX
+    if (!isNearBottom || userHasScrolledUpRef.current) return
+    const now = Date.now()
+    if (isStreaming && now - lastAutoScrollTimeRef.current < AUTO_SCROLL_THROTTLE_MS) return
+    lastAutoScrollTimeRef.current = now
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' })
   }, [messages, isLoading, isStreaming])
 
 
