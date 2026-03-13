@@ -59,7 +59,7 @@ const MarkdownRendererComponent: React.FC<MarkdownRendererProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`markdown-content ${className}`} style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <div className={`markdown-content ${className}`} style={{ fontFamily: "'Quicksand', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
         <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-100">
           {content}
         </div>
@@ -69,7 +69,7 @@ const MarkdownRendererComponent: React.FC<MarkdownRendererProps> = ({
 
   if (error || !ReactMarkdown) {
     return (
-      <div className={`markdown-content ${className}`} style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <div className={`markdown-content ${className}`} style={{ fontFamily: "'Quicksand', -apple-system, BlinkMacSystemFont, system-ui, sans-serif" }}>
         <div className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-100">
           {content}
         </div>
@@ -81,7 +81,7 @@ const MarkdownRendererComponent: React.FC<MarkdownRendererProps> = ({
     <div 
       className={`markdown-content ${className} text-gray-700 dark:text-gray-100`}
       style={{ 
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontFamily: "'Quicksand', -apple-system, BlinkMacSystemFont, system-ui, sans-serif",
         lineHeight: '1.6'
       }}
     >

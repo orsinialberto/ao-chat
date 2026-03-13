@@ -4,7 +4,8 @@
 
 @layer base {
   html {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-size: 17px; /* base slightly larger for readability */
+    font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-weight: 400; /* Normal weight for lighter text */
   }
   
@@ -108,7 +109,7 @@
     z-index: 0;
     background: var(--aic-textarea-bg);
     color: var(--aic-textarea-fg);
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 300; /* Light weight to match chat response */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -140,12 +141,12 @@
   }
   /* Single-line chat input (same row, no vertical grow) */
   .aic-textarea--singleLine {
-    min-height: 2.5rem;
-    max-height: 2.5rem;
+    min-height: 3.5rem;
+    max-height: 3.5rem;
     padding-right: 3rem; /* space for send button */
     padding-top: 0;
     padding-bottom: 0;
-    line-height: 2.5rem; /* centrato verticalmente */
+    line-height: 3.5rem; /* centrato verticalmente */
   }
   .aic-textarea--singleLine.aic-textarea--withSend {
     padding-bottom: 0;
@@ -192,8 +193,9 @@
       min-height: 80px;
     }
     .aic-textarea--singleLine {
-      min-height: 2.5rem;
-      max-height: 2.5rem;
+      min-height: 3.25rem;
+      max-height: 3.25rem;
+      line-height: 3.25rem;
     }
   }
 
