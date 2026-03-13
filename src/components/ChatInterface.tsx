@@ -138,7 +138,6 @@ MessageItem.displayName = 'MessageItem';
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onChatCreated }) => {
   const [inputValue, setInputValue] = useState('')
-  const [textAreaHeight, setTextAreaHeight] = useState<number>(40)
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -351,8 +350,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
                   placeholder={t('chat.type_message')}
                   disabled={isLoading}
                   minRows={1}
-                  maxHeightVh={5}
-                  onHeightChange={setTextAreaHeight}
                   className="aic-textarea--withSend aic-textarea--singleLine"
                 />
                 <button
