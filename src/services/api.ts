@@ -71,13 +71,6 @@ export class ApiService {
     });
   }
 
-  async sendAnonymousMessage(chatId: string, request: CreateMessageRequest): Promise<ApiResponse<Message>> {
-    return this.requestPublic<Message>(`/anonymous/chats/${chatId}/messages`, {
-      method: 'POST',
-      body: JSON.stringify(request),
-    });
-  }
-
   async sendAnonymousMessageStream(
     chatId: string,
     request: CreateMessageRequest,
