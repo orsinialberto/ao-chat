@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 
 export interface TextAreaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
   id?: string;
@@ -8,6 +8,9 @@ export interface TextAreaProps extends Omit<React.TextareaHTMLAttributes<HTMLTex
   ariaLabelledBy?: string;
   minRows?: number; // defaults to 1
 }
+
+const MAX_HEIGHT_PX = 200
+const SINGLE_LINE_HEIGHT_PX = 55
 
 export const TextArea: React.FC<TextAreaProps> = ({
   id,
@@ -21,8 +24,21 @@ export const TextArea: React.FC<TextAreaProps> = ({
   className,
   ...rest
 }) => {
+  const ref = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = 'auto'
+    const h = Math.min(el.scrollHeight, MAX_HEIGHT_PX)
+    el.style.height = `${h}px`
+    el.style.overflowY = h >= MAX_HEIGHT_PX ? 'auto' : 'hidden'
+    el.dataset.expanded = h > SINGLE_LINE_HEIGHT_PX ? 'true' : 'false'
+  }, [value])
+
   return (
     <textarea
+      ref={ref}
       id={id}
       className={`aic-textarea ${className ?? ''}`.trim()}
       placeholder={placeholder}
