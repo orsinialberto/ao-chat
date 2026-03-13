@@ -1,5 +1,4 @@
 import { useState, useRef } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { ChatInterface } from './components/ChatInterface'
 import { Sidebar } from './components/sidebar'
 import type { Chat } from './types/api'
@@ -45,37 +44,22 @@ function MainApp() {
   const [resetKey, setResetKey] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const addChatToSidebarRef = useRef<((chat: Chat) => void) | null>(null)
-  const location = useLocation()
-  const navigate = useNavigate()
 
   const handleChatSelect = (chatId: string) => {
     setCurrentChatId(chatId)
-    if (location.pathname !== '/') {
-      navigate('/')
-    }
   }
 
   const handleNewChat = () => {
     setCurrentChatId(undefined)
-    if (location.pathname !== '/') {
-      navigate('/')
-    }
   }
 
   const handleHomeClick = () => {
     setCurrentChatId(undefined)
     setResetKey(prev => prev + 1)
-    if (location.pathname !== '/') {
-      navigate('/')
-    }
   }
 
   const handleAddChatReady = (addChat: (chat: Chat) => void) => {
     addChatToSidebarRef.current = addChat
-  }
-
-  if (location.pathname !== '/') {
-    return <Navigate to="/" replace />
   }
 
   return (
@@ -113,13 +97,9 @@ function MainApp() {
 function App() {
   return (
     <ThemeProvider>
-      <Router>
-        <ServiceProvider>
-          <Routes>
-            <Route path="/*" element={<MainApp />} />
-          </Routes>
-        </ServiceProvider>
-      </Router>
+      <ServiceProvider>
+        <MainApp />
+      </ServiceProvider>
     </ThemeProvider>
   )
 }

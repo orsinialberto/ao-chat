@@ -74,7 +74,7 @@ export const useChat = (_options: UseChatOptions = {}): UseChatReturn => {
   // Refs for typewriter effect
   const pendingTextRef = useRef<string>(''); // Text waiting to be typed
   const displayedTextRef = useRef<string>(''); // Text already displayed
-  const typewriterIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const typewriterIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const streamingCompleteRef = useRef<boolean>(false); // Backend finished sending
   const finalMessageRef = useRef<Message | null>(null); // Final message from backend
 

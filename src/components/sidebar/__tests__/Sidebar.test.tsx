@@ -1,6 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
 import { Sidebar } from '../Sidebar';
 
 vi.mock('../../../hooks/useSidebar', () => ({
@@ -43,15 +42,13 @@ describe('Sidebar', () => {
 
   it('should render sidebar with chat list', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
-          currentChatId="1"
-          onChatSelect={mockOnChatSelect}
-          onNewChat={mockOnNewChat}
-          isOpen={true}
-          onToggle={mockOnToggle}
-        />
-      </MemoryRouter>
+      <Sidebar
+        currentChatId="1"
+        onChatSelect={mockOnChatSelect}
+        onNewChat={mockOnNewChat}
+        isOpen={true}
+        onToggle={mockOnToggle}
+      />
     );
 
     expect(screen.getByText('Inbox')).toBeInTheDocument();
@@ -63,29 +60,25 @@ describe('Sidebar', () => {
 
   it('should show close button when onToggle is provided', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
+      <Sidebar
           currentChatId="1"
           onChatSelect={mockOnChatSelect}
           onNewChat={mockOnNewChat}
           isOpen={true}
           onToggle={mockOnToggle}
         />
-      </MemoryRouter>
     );
     expect(screen.getByTitle('Close sidebar')).toBeInTheDocument();
   });
 
   it('should not show close button when onToggle is not provided', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
-          currentChatId="1"
-          onChatSelect={mockOnChatSelect}
-          onNewChat={mockOnNewChat}
-          isOpen={true}
-        />
-      </MemoryRouter>
+      <Sidebar
+        currentChatId="1"
+        onChatSelect={mockOnChatSelect}
+        onNewChat={mockOnNewChat}
+        isOpen={true}
+      />
     );
 
     expect(screen.queryByTitle('Close sidebar')).toBeNull();
@@ -93,15 +86,13 @@ describe('Sidebar', () => {
 
   it('should call onToggle when close button is clicked', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
+      <Sidebar
           currentChatId="1"
           onChatSelect={mockOnChatSelect}
           onNewChat={mockOnNewChat}
           isOpen={true}
           onToggle={mockOnToggle}
         />
-      </MemoryRouter>
     );
 
     fireEvent.click(screen.getByTitle('Close sidebar'));
@@ -110,15 +101,13 @@ describe('Sidebar', () => {
 
   it('should show mobile overlay when open', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
-          currentChatId="1"
-          onChatSelect={mockOnChatSelect}
-          onNewChat={mockOnNewChat}
-          isOpen={true}
-          onToggle={mockOnToggle}
-        />
-      </MemoryRouter>
+      <Sidebar
+        currentChatId="1"
+        onChatSelect={mockOnChatSelect}
+        onNewChat={mockOnNewChat}
+        isOpen={true}
+        onToggle={mockOnToggle}
+      />
     );
 
     const overlay = document.querySelector('.fixed.inset-0.bg-black.z-40');
@@ -127,15 +116,13 @@ describe('Sidebar', () => {
 
   it('should not show mobile overlay when closed', () => {
     render(
-      <MemoryRouter>
-        <Sidebar
+      <Sidebar
           currentChatId="1"
           onChatSelect={mockOnChatSelect}
           onNewChat={mockOnNewChat}
           isOpen={false}
           onToggle={mockOnToggle}
         />
-      </MemoryRouter>
     );
 
     const overlay = document.querySelector('.fixed.inset-0.bg-black.z-40');

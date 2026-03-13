@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ChatList } from './ChatList';
 import { useSidebar } from '../../hooks/useSidebar';
 import { Chat } from '../../services/api';
@@ -25,7 +24,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [showChatList, setShowChatList] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState('');
-  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    if (onHomeClick) {
+      onHomeClick();
+    } else {
+      onNewChat();
+    }
+  };
 
   const {
     chats,
@@ -104,16 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="pl-4 pr-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <button
-                    onClick={() => {
-                      if (onHomeClick) {
-                        onHomeClick();
-                      } else {
-                        navigate('/');
-                        if (onNewChat) {
-                          onNewChat();
-                        }
-                      }
-                    }}
+                    onClick={handleHomeClick}
                     className="flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer group/logo"
                     title="Go to home"
                   >
@@ -215,16 +212,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="pt-4 pb-4 flex flex-col items-center gap-2">
                 {/* AI Icon Button - torna alla home */}
                 <button
-                  onClick={() => {
-                    if (onHomeClick) {
-                      onHomeClick();
-                    } else {
-                      navigate('/');
-                      if (onNewChat) {
-                        onNewChat();
-                      }
-                    }
-                  }}
+                  onClick={handleHomeClick}
                   className="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white transition-colors group/logo"
                   title="Go to home"
                 >
