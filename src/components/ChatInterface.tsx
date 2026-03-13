@@ -299,7 +299,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
 
       {/* Messages Area */}
       {messages.length === 0 ? (
-        <div className="flex-1 flex flex-col justify-center items-center px-6">
+        <div className="flex-1 flex flex-col justify-center items-center px-6 -mt-12">
           <div className="text-center text-gray-600 dark:text-gray-400 py-4 mb-8 transition-colors">
             <p className="text-4xl font-light tracking-wide">All set when you are!</p>
           </div>
@@ -333,7 +333,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
       )}
         
         {/* Input Area - single line, fully rounded like search */}
-        <div className="px-6 mt-1">
+        <div className="px-6 -mt-2">
           <div className="relative">
             <div className="aic-input-container aic-input-container--pill">
               <label htmlFor="chat-input" className="sr-only">
