@@ -54,10 +54,10 @@ describe('ChatItem', () => {
       />
     );
 
-    // Find the outer div that has the background color class
-    const chatItem = container.querySelector('.bg-sky-100\\/50');
+    // Find the outer div that has the active state background
+    const chatItem = container.querySelector('.bg-gray-200');
     expect(chatItem).toBeInTheDocument();
-    expect(chatItem).toHaveClass('bg-sky-100/50');
+    expect(chatItem).toHaveClass('bg-gray-200');
   });
 
   it('should call onSelect when clicked', () => {

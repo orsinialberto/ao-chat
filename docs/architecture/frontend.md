@@ -14,26 +14,23 @@ The frontend is a modern React application built with TypeScript, providing a re
 │  │   App.tsx     │  │ ServiceProvider │  │ React Query│  │
 │  └───────────────┘  └─────────────────┘  └────────────┘  │
 │         │                   │                  │         │
-│         │            ┌──────▼──────┐           │         │
-│         │            │AuthProvider │           │         │
-│         │            └─────────────┘           │         │
 │  ┌──────▼──────────────────────────────────────▼───────┐ │
 │  │            Components Layer                         │ │
-│  │  ┌─────────────┐  ┌────────────┐  ┌────────────┐    │ │
-│  │  │ChatInterface│  │  Sidebar   │  │  Settings  │    │ │
-│  │  └─────────────┘  └────────────┘  └────────────┘    │ │
+│  │  ┌─────────────┐  ┌────────────┐                     │ │
+│  │  │ChatInterface│  │  Sidebar   │                     │ │
+│  │  └─────────────┘  └────────────┘                     │ │
 │  └─────────────────────────────────────────────────────┘ │
 │         │                                                │
 │  ┌──────▼──────────────────────────────────────────────┐ │
 │  │       Services Layer (injected via context)         │ │
-│  │  ┌────────────┐  ┌────────────┐  ┌────────────┐     │ │
-│  │  │ ApiService │  │AuthService │  │  hooks/    │     │ │
-│  │  │ (DI class) │  │(IAuthSvc)  │  │            │     │ │
-│  │  └────────────┘  └────────────┘  └────────────┘     │ │
+│  │  ┌────────────┐  ┌────────────┐                      │ │
+│  │  │ ApiService │  │  hooks/    │                      │ │
+│  │  │ (baseUrl)  │  │            │                      │ │
+│  │  └────────────┘  └────────────┘                      │ │
 │  └─────────────────────────────────────────────────────┘ │
 │         │                                                │
 │  ┌──────▼──────────────────────────────────────────────┐ │
-│  │            Backend API (configurable URL)           │ │
+│  │     Backend API – anonymous only (configurable URL) │ │
 │  └─────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -49,10 +46,8 @@ The frontend is a modern React application built with TypeScript, providing a re
 - **Tailwind CSS** - Utility-first CSS framework
 
 ### Key Libraries
-- **axios** - HTTP client for API calls
 - **react-markdown** - Markdown rendering
 - **recharts** - Chart visualization
-- **jwt-decode** - JWT token decoding
 - **@headlessui/react** - Accessible UI components
 
 ## 📁 Project Structure
@@ -61,124 +56,33 @@ The frontend is a modern React application built with TypeScript, providing a re
 ao-chat/
 ├── src/
 │   ├── components/                 # React components
-│   │   ├── auth/                   # Authentication components
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── RegisterPage.tsx
-│   │   │   └── ProtectedRoute.tsx
 │   │   ├── sidebar/                # Sidebar components
 │   │   │   ├── Sidebar.tsx
 │   │   │   └── ChatList.tsx
 │   │   ├── ChatInterface.tsx
 │   │   ├── MarkdownRenderer.tsx
-│   │   ├── Settings.tsx
 │   │   └── TextArea.tsx
-│   ├── contexts/                   # React contexts
-│   │   ├── ServiceContext.tsx       # DI provider (ApiService + AuthService)
-│   │   └── AuthContext.tsx
-│   ├── hooks/                      # Custom React hooks
+│   ├── contexts/
+│   │   └── ServiceContext.tsx      # ApiService provider (baseUrl)
+│   ├── hooks/
 │   │   ├── useChat.ts
 │   │   └── useTranslation.ts
-│   ├── services/                   # Service implementations
-│   │   ├── api.ts                  # ApiService class (accepts config)
-│   │   ├── authService.ts          # AuthService (implements IAuthService)
-│   │   └── anonymousChatService.ts # Anonymous chat storage
-│   ├── types/                      # TypeScript types (frontend-owned)
-│   │   ├── api.ts                  # API request/response types
-│   │   └── auth.ts                 # IAuthService interface + JWTPayload
-│   ├── utils/                      # Utility functions
-│   ├── styles/                     # CSS files
+│   ├── services/
+│   │   ├── api.ts                  # ApiService (anonymous API only)
+│   │   └── anonymousChatService.ts # Session storage for chat list
+│   ├── types/
+│   │   └── api.ts                  # API request/response types
+│   ├── utils/
+│   ├── styles/
 │   │   ├── index.css
 │   │   └── markdown.css
-│   ├── App.tsx                     # Main app component
-│   └── main.tsx                    # Entry point
-├── .env.example                    # Environment variable reference
+│   ├── App.tsx
+│   └── main.tsx
+├── .env.example
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
 ```
-
-## 🔐 Authentication Flow
-
-### Authentication Components
-
-1. **ServiceContext** (`contexts/ServiceContext.tsx`)
-   - Dependency injection provider for `ApiService` and `AuthService`
-   - Accepts optional `ApiClientConfig` to customize backend URL and auth implementation
-   - Must wrap `AuthProvider` and all components that use `useServices()`
-
-2. **AuthContext** (`contexts/AuthContext.tsx`)
-   - Global authentication state management
-   - Consumes `ApiService` and `AuthService` via `useServices()` (no direct singleton imports)
-   - Provides `user`, `isAuthenticated`, `login()`, `register()`, `logout()`
-   - Persists JWT token in localStorage
-   - Periodic token expiration check (every 30 seconds)
-   - Automatic logout on token expiration (JWT or OAuth)
-
-3. **IAuthService** (`types/auth.ts`)
-   - Interface defining the auth service contract
-   - Default implementation: `AuthService` in `services/authService.ts`
-   - Custom implementations can be provided via `ServiceProvider` config
-
-4. **AuthService** (`services/authService.ts`)
-   - Implements `IAuthService`
-   - Token management (set, get, remove) with configurable storage key
-   - Token expiration checking (JWT and OAuth token)
-   - JWT decoding
-
-5. **ProtectedRoute** (`components/auth/ProtectedRoute.tsx`)
-   - Route guard component
-   - Redirects to `/login` if not authenticated
-   - Wraps protected routes
-
-4. **LoginPage** (`components/auth/LoginPage.tsx`)
-   - Login form with username/email and password
-   - Client-side validation
-   - Automatic redirect after successful login
-
-5. **RegisterPage** (`components/auth/RegisterPage.tsx`)
-   - Registration form (username, email, password, confirm password)
-   - Validation rules:
-     - Username: min 3 characters
-     - Email: valid format
-     - Password: min 6 characters
-     - Password match confirmation
-
-### Authentication Flow Diagram
-
-```
-User → LoginPage/RegisterPage
-  ↓
-AuthService.login() / AuthService.register()
-  ↓
-API Call → Backend /api/auth/login or /api/auth/register
-  ↓
-Backend validates → Returns JWT token
-  ↓
-Frontend saves token to localStorage
-  ↓
-AuthContext updates state
-  ↓
-Redirect to / (MainApp)
-  ↓
-ProtectedRoute checks authentication
-  ↓
-Renders MainApp
-```
-
-### Token Management
-
-- **Storage**: JWT token stored in `localStorage`
-  - JWT payload includes `oauthToken` and `oauthTokenExpiry` (if OAuth is enabled)
-- **Expiration Check**: 
-  - **Preventive Check**: Before each API request, token expiration is verified (both JWT and OAuth token)
-  - **Periodic Check**: Every 30 seconds, `AuthContext` checks token expiration even when user is not making requests
-- **OAuth Token Expiration**:
-  - `authService.isOAuthTokenExpired()` checks `oauthTokenExpiry` from JWT payload
-  - `authService.isTokenExpired()` checks both JWT `exp` and OAuth `oauthTokenExpiry`
-  - If OAuth token expired: redirect to `/login?error=oauth_expired`
-  - If JWT expired: redirect to `/login`
-- **Auto-logout**: If token expired or invalid (JWT or OAuth), user is automatically logged out and redirected to `/login` with appropriate error parameter
-- **Header Injection**: Token is automatically added to `Authorization: Bearer <token>` header for all API requests
 
 ## 🎨 Component Architecture
 
@@ -186,13 +90,8 @@ Renders MainApp
 
 #### 1. **App.tsx**
 - Root component with routing
-- Sets up `ServiceProvider`, `AuthProvider`, and `QueryClientProvider`
-- `ServiceProvider` wraps `AuthProvider` to inject services before auth initialization
-- Defines routes:
-  - `/login` - Public route
-  - `/register` - Public route
-  - `/` - Protected route (MainApp)
-  - `/settings` - Protected route
+- Sets up `ServiceProvider` and `QueryClientProvider`
+- Single route: `/*` → MainApp (anonymous chat only, no auth)
 
 #### 2. **MainApp** (within App.tsx)
 - Main application container
@@ -215,11 +114,10 @@ Renders MainApp
 #### 4. **Sidebar** (`components/sidebar/Sidebar.tsx`)
 - Chat navigation sidebar
 - Features:
-  - List of all user's chats
+  - List of chats (from session storage)
   - New chat button
   - Chat selection
   - Responsive design (collapsible on mobile)
-  - Logout button
 
 #### 5. **MarkdownRenderer** (`components/MarkdownRenderer.tsx`)
 - Renders markdown content with syntax highlighting
@@ -228,10 +126,6 @@ Renders MainApp
   - Tables (GFM)
   - Links and images
   - Sanitized HTML for security
-
-#### 6. **Settings** (`components/Settings.tsx`)
-- User settings page
-- (Future: User preferences, model settings, etc.)
 
 ## 🔄 State Management
 
@@ -292,73 +186,42 @@ const queryClient = new QueryClient({
 ```typescript
 interface ApiClientConfig {
   baseUrl: string;
-  authService?: IAuthService;
 }
 ```
 
-Services are provided to the component tree via `ServiceProvider` and consumed via the `useServices()` hook. No module-level singletons are used.
+Services are provided via `ServiceProvider` and consumed via `useServices()`. Anonymous-only: no auth or tokens.
 
 Main features:
 - Configurable base URL (via `VITE_API_URL` env var or config)
-- Pluggable auth via `IAuthService` interface
-- Automatic token injection
 - Error handling
-- Token expiration handling
 - **HTTP Streaming (SSE)** for AI responses
 
 **Key Methods:**
 
-*Standard REST:*
-- `createChat()` - Create new chat
-- `getChats()` - Get all user's chats
-- `getChat()` - Get chat by ID
-- `sendMessage()` - Send message to chat (REST, waits for complete response)
-- `register()` - User registration
-- `login()` - User login
-- `logout()` - User logout
+*REST:*
+- `createAnonymousChat(request)` - Create new anonymous chat
+- `sendAnonymousMessage(chatId, request)` - Send message (REST)
 
 *Streaming (SSE):*
-- `sendMessageStream(chatId, request, onChunk, onDone, onError)` - Send message with streaming response
-- `sendAnonymousMessageStream(chatId, request, onChunk, onDone, onError)` - Streaming for anonymous users
+- `sendAnonymousMessageStream(chatId, request, onChunk, onDone, onError)` - Streaming for AI responses
 
 **Streaming Request Flow:**
 ```
-Component → sendMessageStream()
+Component → sendAnonymousMessageStream()
   ↓
-Check token expiration
-  ↓
-Add Authorization header
-  ↓
-Make HTTP request to /messages/stream endpoint
+POST /anonymous/chats/:id/messages/stream (no auth header)
   ↓
 Read response as ReadableStream
   ↓
 Parse SSE events (data: {...})
   ↓
-Call onChunk() for each chunk
-  ↓
-Call onDone() when complete
+Call onChunk() for each chunk → onDone() when complete
 ```
 
 **SSE Event Types:**
 - `chunk`: Partial AI response content
-- `done`: Complete message object (saved to database)
+- `done`: Complete message object
 - `error`: Error message
-
-**Standard REST Request Flow:**
-```
-Component → apiService method
-  ↓
-Check token expiration
-  ↓
-Add Authorization header
-  ↓
-Make HTTP request (fetch)
-  ↓
-Handle response/error
-  ↓
-Return data or throw error
-```
 
 ## 🎨 Styling
 

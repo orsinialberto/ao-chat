@@ -22,7 +22,6 @@ export interface Translations {
     copy_message: string;
     copied: string;
     send: string;
-    model: string;
   };
 }
 
@@ -43,8 +42,7 @@ const translations: Record<SupportedLanguage, Translations> = {
       download_message: 'Download message',
       copy_message: 'Copy message',
       copied: 'Copied!',
-      send: 'Send',
-      model: 'Model'
+      send: 'Send'
     }
   },
   it: {
@@ -63,8 +61,7 @@ const translations: Record<SupportedLanguage, Translations> = {
       download_message: 'Scarica messaggio',
       copy_message: 'Copia messaggio',
       copied: 'Copiato!',
-      send: 'Invia',
-      model: 'Modello'
+      send: 'Invia'
     }
   },
   es: {
@@ -83,8 +80,7 @@ const translations: Record<SupportedLanguage, Translations> = {
       download_message: 'Descargar mensaje',
       copy_message: 'Copiar mensaje',
       copied: '¡Copiado!',
-      send: 'Enviar',
-      model: 'Modelo'
+      send: 'Enviar'
     }
   },
   fr: {
@@ -103,8 +99,7 @@ const translations: Record<SupportedLanguage, Translations> = {
       download_message: 'Télécharger le message',
       copy_message: 'Copier le message',
       copied: 'Copié!',
-      send: 'Envoyer',
-      model: 'Modèle'
+      send: 'Envoyer'
     }
   },
   de: {
@@ -123,8 +118,7 @@ const translations: Record<SupportedLanguage, Translations> = {
       download_message: 'Nachricht herunterladen',
       copy_message: 'Nachricht kopieren',
       copied: 'Kopiert!',
-      send: 'Senden',
-      model: 'Modell'
+      send: 'Senden'
     }
   }
 };

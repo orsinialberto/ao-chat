@@ -111,7 +111,6 @@ interface ChatMessage {
   timestamp: Date;
   metadata?: {
     tokens?: number;
-    model?: string;
   };
 }
 

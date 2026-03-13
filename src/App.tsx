@@ -1,15 +1,10 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { ChatInterface } from './components/ChatInterface'
 import { Sidebar } from './components/sidebar'
-import { Settings } from './components/Settings'
 import type { Chat } from './types/api'
 import { ServiceProvider } from './contexts/ServiceContext'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { ThemeProvider, useTheme } from './contexts/ThemeContext'
-import { LoginPage, RegisterPage, ProtectedRoute } from './components/auth'
-import { LoginDialog } from './components/auth/LoginDialog'
-import { RegisterDialog } from './components/auth/RegisterDialog'
 
 function ThemeFloatingToggle() {
   const { theme, toggleTheme } = useTheme()
@@ -43,61 +38,33 @@ function ThemeFloatingToggle() {
 
 /**
  * Main App Component
- * Contains the sidebar and main content (chat or settings)
- * Works for both anonymous and authenticated users
+ * Sidebar + chat area. Single anonymous mode (no auth).
  */
 function MainApp() {
   const [currentChatId, setCurrentChatId] = useState<string | undefined>()
   const [resetKey, setResetKey] = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false)
-  const [registerDialogOpen, setRegisterDialogOpen] = useState(false)
   const addChatToSidebarRef = useRef<((chat: Chat) => void) | null>(null)
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
-  
-  // Close dialogs when user becomes authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (loginDialogOpen) {
-        setLoginDialogOpen(false)
-      }
-      if (registerDialogOpen) {
-        setRegisterDialogOpen(false)
-      }
-    }
-  }, [isAuthenticated, loginDialogOpen, registerDialogOpen])
-
-  // Reset currentChatId when navigating to settings page
-  useEffect(() => {
-    if (location.pathname === '/settings') {
-      setCurrentChatId(undefined)
-    }
-  }, [location.pathname])
 
   const handleChatSelect = (chatId: string) => {
     setCurrentChatId(chatId)
-    // Navigate to home if we're on settings page
-    if (location.pathname === '/settings') {
+    if (location.pathname !== '/') {
       navigate('/')
     }
   }
 
   const handleNewChat = () => {
     setCurrentChatId(undefined)
-    // Navigate to home if we're on settings page
-    if (location.pathname === '/settings') {
+    if (location.pathname !== '/') {
       navigate('/')
     }
   }
 
   const handleHomeClick = () => {
-    // Force reset: clear current chat and navigate to home
     setCurrentChatId(undefined)
-    // Increment resetKey to force ChatInterface to reset even if we're already on home
     setResetKey(prev => prev + 1)
-    // Navigate to home if we're not already there
     if (location.pathname !== '/') {
       navigate('/')
     }
@@ -107,10 +74,7 @@ function MainApp() {
     addChatToSidebarRef.current = addChat
   }
 
-  const isSettingsPage = location.pathname === '/settings'
-  const isChatPage = location.pathname === '/'
-
-  if (!isChatPage && !isSettingsPage) {
+  if (location.pathname !== '/') {
     return <Navigate to="/" replace />
   }
 
@@ -118,81 +82,42 @@ function MainApp() {
     <div className="h-screen bg-white dark:bg-gray-900 overflow-hidden transition-colors">
       <ThemeFloatingToggle />
       <div className="flex h-screen">
-        {/* Sidebar */}
-        <Sidebar 
+        <Sidebar
           currentChatId={currentChatId}
           onChatSelect={handleChatSelect}
           onNewChat={handleNewChat}
           onAddChatReady={handleAddChatReady}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
-          isAnonymous={!isAuthenticated}
-          onLoginClick={() => setLoginDialogOpen(true)}
           onHomeClick={handleHomeClick}
         />
-        
-        {/* Main Content - Centered */}
+
         <main className="flex-1 overflow-hidden flex justify-center items-center py-6">
           <div className="w-full max-w-4xl px-4">
-            {isSettingsPage ? (
-              <ProtectedRoute>
-                <Settings />
-              </ProtectedRoute>
-            ) : (
-              <ChatInterface 
-                key={resetKey}
-                currentChatId={currentChatId} 
-                onChatCreated={(chat) => {
-                  if (addChatToSidebarRef.current) {
-                    addChatToSidebarRef.current(chat)
-                  }
-                }}
-                isAnonymous={!isAuthenticated}
-              />
-            )}
+            <ChatInterface
+              key={resetKey}
+              currentChatId={currentChatId}
+              onChatCreated={(chat) => {
+                if (addChatToSidebarRef.current) {
+                  addChatToSidebarRef.current(chat)
+                }
+              }}
+            />
           </div>
         </main>
       </div>
-      
-      {/* Login Dialog */}
-      <LoginDialog 
-        isOpen={loginDialogOpen}
-        onClose={() => setLoginDialogOpen(false)}
-        onSwitchToRegister={() => {
-          setLoginDialogOpen(false)
-          setRegisterDialogOpen(true)
-        }}
-      />
-      
-      {/* Register Dialog */}
-      <RegisterDialog 
-        isOpen={registerDialogOpen}
-        onClose={() => setRegisterDialogOpen(false)}
-        onSwitchToLogin={() => {
-          setRegisterDialogOpen(false)
-          setLoginDialogOpen(true)
-        }}
-      />
     </div>
   )
 }
 
-/**
- * Root App Component
- * Provides routing and authentication context
- */
 function App() {
   return (
     <ThemeProvider>
       <Router>
         <ServiceProvider>
-          <AuthProvider>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/*" element={<MainApp />} />
-            </Routes>
-          </AuthProvider>
+          <Routes>
+            <Route path="/*" element={<MainApp />} />
+          </Routes>
         </ServiceProvider>
       </Router>
     </ThemeProvider>

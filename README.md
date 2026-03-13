@@ -1,6 +1,6 @@
 # AO Chat
 
-React frontend for the AI Agent Chat application. Designed as a reusable, backend-agnostic chat UI that can connect to any compatible API.
+React frontend for the AI Agent Chat application. Designed as a reusable, backend-agnostic chat UI that can connect to any compatible API. **Single anonymous mode**: no login or registration; chats are stored in session storage and sent to the backend via the anonymous API.
 
 ## Tech Stack
 
@@ -71,16 +71,15 @@ npm run lint:fix
 
 ## Reuse in Another Project
 
+Wrap your app with `ServiceProvider` and set the API base URL. No auth is required (anonymous mode only).
+
 ```tsx
 import { ServiceProvider } from './contexts/ServiceContext';
-import { MyCustomAuth } from './my-auth';
-
-const authService = new MyCustomAuth();
 
 function App() {
   return (
-    <ServiceProvider config={{ baseUrl: '/my-api', authService }}>
-      {/* your routes */}
+    <ServiceProvider config={{ baseUrl: '/my-api' }}>
+      {/* your routes or <ChatInterface /> */}
     </ServiceProvider>
   );
 }

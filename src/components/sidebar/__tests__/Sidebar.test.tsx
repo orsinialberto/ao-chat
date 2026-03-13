@@ -3,17 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { Sidebar } from '../Sidebar';
 
-vi.mock('../../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { id: '1', username: 'testuser', email: 'test@test.com' },
-    isAuthenticated: true,
-    isLoading: false,
-    login: vi.fn(),
-    register: vi.fn(),
-    logout: vi.fn(),
-  }),
-}));
-
 vi.mock('../../../hooks/useSidebar', () => ({
   useSidebar: () => ({
     chats: [
@@ -36,7 +25,7 @@ vi.mock('../../../hooks/useSidebar', () => ({
     error: null,
     updateChatTitle: vi.fn(),
     deleteChat: vi.fn(),
-    createNewChat: vi.fn().mockResolvedValue({ id: '3' }),
+    createNewChat: vi.fn().mockResolvedValue(null),
     addChat: vi.fn(),
     clearError: vi.fn(),
     loadChats: vi.fn()

@@ -138,6 +138,18 @@
   .aic-textarea--withSend {
     padding-bottom: 56px; /* space for button */
   }
+  /* Single-line chat input (same row, no vertical grow) */
+  .aic-textarea--singleLine {
+    min-height: 2.5rem;
+    max-height: 2.5rem;
+    padding-right: 3rem; /* space for send button */
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 2.5rem; /* centrato verticalmente */
+  }
+  .aic-textarea--singleLine.aic-textarea--withSend {
+    padding-bottom: 0;
+  }
   /* Leaflet Popup custom styles */
   .custom-popup .leaflet-popup-content-wrapper {
     max-width: 450px;
@@ -179,20 +191,24 @@
       padding: 8px 10px;
       min-height: 80px;
     }
+    .aic-textarea--singleLine {
+      min-height: 2.5rem;
+      max-height: 2.5rem;
+    }
   }
 
-  /* Input container that morphs from pill to flat as content grows */
+  /* Input container */
   .aic-input-container {
-    --pillFactor: 1; /* 1 => full pill bottom, 0 => flat */
     background: #FFFFFF;
     border: 1px solid var(--aic-textarea-border);
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: calc(20px * var(--pillFactor));
-    border-bottom-right-radius: calc(20px * var(--pillFactor));
-    transition: border-radius 180ms ease, transform 180ms ease, background-color 200ms ease, border-color 200ms ease;
-    padding: 0; /* children handle their own padding */
-    overflow: hidden; /* Ensure content respects rounded corners */
+    border-radius: 20px;
+    transition: border-radius 180ms ease, background-color 200ms ease, border-color 200ms ease;
+    padding: 0;
+    overflow: hidden;
+  }
+  /* Fully rounded pill (like search box) */
+  .aic-input-container--pill {
+    border-radius: 9999px;
   }
   .dark .aic-input-container {
     background: #1F2937;
@@ -200,8 +216,11 @@
   /* Remove border and shadow from textarea when inside container */
   .aic-input-container .aic-textarea {
     border: none;
-    border-radius: 0; /* Remove border radius as container handles it */
-    box-shadow: none; /* Remove shadow as container handles it */
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .aic-input-container--pill .aic-textarea {
+    border-radius: 9999px;
   }
   /* Add shadow to container instead */
   .aic-input-container {
@@ -231,14 +250,6 @@
   /* Smooth scroll behavior for chat messages container */
   .scroll-smooth-chat {
     scroll-behavior: smooth;
-  }
-
-  /* Dropdown option hover to match sidebar hover/active feel */
-  #model-select option:hover {
-    /* sky-100 with 50% opacity */
-    background-color: rgba(224, 242, 254, 0.5) !important;
-    /* improve contrast similar to sidebar text-sky-800 */
-    color: #075985;
   }
 }
 

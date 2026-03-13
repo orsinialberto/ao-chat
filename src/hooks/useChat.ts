@@ -15,12 +15,13 @@ export interface UseChatReturn {
   // Actions
   createChat: (request: CreateChatRequest) => Promise<void>;
   loadChat: (chatId: string) => Promise<void>;
-  sendMessage: (content: string, options?: { model?: string }) => Promise<void>;
+  sendMessage: (content: string) => Promise<void>;
   clearError: () => void;
   resetChat: () => void;
 }
 
 export interface UseChatOptions {
+  /** @deprecated Single anonymous mode only; option kept for API compatibility */
   isAnonymous?: boolean;
 }
 
@@ -60,8 +61,7 @@ function getErrorMessage(response: ApiResponse<any>, context: 'send' | 'load' | 
 const TYPEWRITER_CHAR_DELAY_MS = 20;
 const TYPEWRITER_CHUNK_SIZE = 2;
 
-export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
-  const { isAnonymous = false } = options;
+export const useChat = (_options: UseChatOptions = {}): UseChatReturn => {
   const { apiService } = useServices();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -90,7 +90,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
     finalMessageRef.current = null;
     
     const initialMessage = request.initialMessage?.trim();
-    const model = request.model;
     
     // Add user message immediately if initialMessage is provided
     let tempUserMessage: Message | null = null;
@@ -112,22 +111,12 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
         // Don't include initialMessage - we'll stream it
       };
       
-      let response: ApiResponse<Chat>;
-      
-      if (isAnonymous) {
-        response = await apiService.createAnonymousChat(createRequest);
-      } else {
-        response = await apiService.createChat(createRequest);
-      }
+      const response = await apiService.createAnonymousChat(createRequest);
       
       if (response.success && response.data) {
         const chat = response.data;
         setCurrentChat(chat);
-        
-        // Save to sessionStorage if anonymous (without messages yet)
-        if (isAnonymous) {
-          AnonymousChatService.addChat(chat);
-        }
+        AnonymousChatService.addChat(chat);
         
         // If there's an initial message, send it via streaming with typewriter
         if (initialMessage) {
@@ -156,9 +145,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             content: initialMessage,
             role: 'user'
           };
-          if (model) {
-            (messageRequest as any).model = model;
-          }
           
           // Typewriter tick function for initial message
           const typewriterTick = () => {
@@ -185,17 +171,13 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
                 const newMessages = prev.map(msg => 
                   msg.id === streamingMessageIdRef.current ? finalMsg : msg
                 );
-                
-                if (isAnonymous && chat) {
-                  const updatedChat: Chat = {
-                    ...chat,
-                    messages: newMessages,
-                    updatedAt: new Date()
-                  };
-                  AnonymousChatService.updateChat(chat.id, updatedChat);
-                  setCurrentChat(updatedChat);
-                }
-                
+                const updatedChat: Chat = {
+                  ...chat,
+                  messages: newMessages,
+                  updatedAt: new Date()
+                };
+                AnonymousChatService.updateChat(chat.id, updatedChat);
+                setCurrentChat(updatedChat);
                 return newMessages;
               });
 
@@ -226,17 +208,13 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
                 const newMessages = prev.map(msg => 
                   msg.id === streamingMessageIdRef.current ? finalMessage : msg
                 );
-                
-                if (isAnonymous && chat) {
-                  const updatedChat: Chat = {
-                    ...chat,
-                    messages: newMessages,
-                    updatedAt: new Date()
-                  };
-                  AnonymousChatService.updateChat(chat.id, updatedChat);
-                  setCurrentChat(updatedChat);
-                }
-                
+                const updatedChat: Chat = {
+                  ...chat,
+                  messages: newMessages,
+                  updatedAt: new Date()
+                };
+                AnonymousChatService.updateChat(chat.id, updatedChat);
+                setCurrentChat(updatedChat);
                 return newMessages;
               });
 
@@ -266,13 +244,8 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             setIsLoading(false);
           };
 
-          // Send message via streaming
           try {
-            if (isAnonymous) {
-              await apiService.sendAnonymousMessageStream(chat.id, messageRequest, onChunk, onDone, onError);
-            } else {
-              await apiService.sendMessageStream(chat.id, messageRequest, onChunk, onDone, onError);
-            }
+            await apiService.sendAnonymousMessageStream(chat.id, messageRequest, onChunk, onDone, onError);
           } catch (err) {
             onError(t('errors.unknown_error'));
           }
@@ -287,20 +260,11 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
           setMessages([]);
         }
         
-        // If chat was created but LLM failed, still set the chat
         if (response.chatId) {
-          if (isAnonymous) {
-            const savedChat = AnonymousChatService.getChat(response.chatId);
-            if (savedChat) {
-              setCurrentChat(savedChat);
-              setMessages(savedChat.messages || []);
-            }
-          } else {
-            const chatResponse = await apiService.getChat(response.chatId);
-            if (chatResponse.success && chatResponse.data) {
-              setCurrentChat(chatResponse.data);
-              setMessages(chatResponse.data.messages || []);
-            }
+          const savedChat = AnonymousChatService.getChat(response.chatId);
+          if (savedChat) {
+            setCurrentChat(savedChat);
+            setMessages(savedChat.messages || []);
           }
         }
         
@@ -314,9 +278,9 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
       setError(t('errors.unknown_error'));
       setIsLoading(false);
     }
-  }, [isAnonymous, apiService]);
+  }, [apiService]);
 
-  const sendMessage = useCallback(async (content: string, options?: { model?: string }) => {
+  const sendMessage = useCallback(async (content: string) => {
     if (!currentChat || !content.trim()) return;
 
     setIsLoading(true);
@@ -357,9 +321,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
       content: content.trim(),
       role: 'user'
     };
-    if (options?.model) {
-      (request as any).model = options.model;
-    }
 
     // Typewriter tick function - releases characters one at a time
     const typewriterTick = () => {
@@ -390,8 +351,7 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             msg.id === streamingMessageIdRef.current ? finalMsg : msg
           );
           
-          // Update chat in sessionStorage if anonymous
-          if (isAnonymous && currentChat) {
+          if (currentChat) {
             const updatedChat: Chat = {
               ...currentChat,
               messages: newMessages,
@@ -400,7 +360,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             AnonymousChatService.updateChat(currentChat.id, updatedChat);
             setCurrentChat(updatedChat);
           }
-          
           return newMessages;
         });
 
@@ -440,7 +399,7 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             msg.id === streamingMessageIdRef.current ? finalMessage : msg
           );
           
-          if (isAnonymous && currentChat) {
+          if (currentChat) {
             const updatedChat: Chat = {
               ...currentChat,
               messages: newMessages,
@@ -449,7 +408,6 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
             AnonymousChatService.updateChat(currentChat.id, updatedChat);
             setCurrentChat(updatedChat);
           }
-          
           return newMessages;
         });
 
@@ -482,48 +440,29 @@ export const useChat = (options: UseChatOptions = {}): UseChatReturn => {
     };
 
     try {
-      if (isAnonymous) {
-        await apiService.sendAnonymousMessageStream(currentChat.id, request, onChunk, onDone, onError);
-      } else {
-        await apiService.sendMessageStream(currentChat.id, request, onChunk, onDone, onError);
-      }
+      await apiService.sendAnonymousMessageStream(currentChat.id, request, onChunk, onDone, onError);
     } catch (err) {
       onError(t('errors.unknown_error'));
     }
-  }, [currentChat, isAnonymous, apiService]);
+  }, [currentChat, apiService]);
 
   const loadChat = useCallback(async (chatId: string) => {
     setIsLoading(true);
     setError(null);
-    
     try {
-      if (isAnonymous) {
-        // Load from sessionStorage for anonymous chats
-        const chat = AnonymousChatService.getChat(chatId);
-        if (chat) {
-          setCurrentChat(chat);
-          setMessages(chat.messages || []);
-        } else {
-          setError(t('errors.failed_to_load'));
-        }
+      const chat = AnonymousChatService.getChat(chatId);
+      if (chat) {
+        setCurrentChat(chat);
+        setMessages(chat.messages || []);
       } else {
-        // Load from API for authenticated chats
-        const response = await apiService.getChat(chatId);
-        
-        if (response.success && response.data) {
-          setCurrentChat(response.data);
-          setMessages(response.data.messages || []);
-        } else {
-          // Show localized error message
-          setError(getErrorMessage(response, 'load'));
-        }
+        setError(t('errors.failed_to_load'));
       }
     } catch (err) {
       setError(t('errors.unknown_error'));
     } finally {
       setIsLoading(false);
     }
-  }, [isAnonymous, apiService]);
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);

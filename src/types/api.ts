@@ -18,14 +18,12 @@ export interface Message {
 export interface CreateChatRequest {
   title?: string;
   initialMessage?: string;
-  model?: string;
 }
 
 export interface CreateMessageRequest {
   chatId: string;
   content: string;
   role?: 'user' | 'system';
-  model?: string;
 }
 
 export interface ApiResponse<T = any> {
@@ -36,34 +34,4 @@ export interface ApiResponse<T = any> {
   message?: string;
   retryAfter?: number;
   chatId?: string;
-}
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface LoginRequest {
-  usernameOrEmail: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
-  expiresAt: string;
-}
-
-export interface ChangePasswordRequest {
-  currentPassword: string;
-  newPassword: string;
 }

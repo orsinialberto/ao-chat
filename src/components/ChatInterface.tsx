@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef, Fragment, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useChat } from '../hooks/useChat'
 import { Message, Chat } from '../services/api'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { useTranslation } from '../hooks/useTranslation'
 import { TextArea } from './TextArea'
-import { Listbox, Transition } from '@headlessui/react'
 
 interface ChatInterfaceProps {
   currentChatId?: string;
   onChatCreated?: (chat: Chat) => void;
-  isAnonymous?: boolean;
 }
 
 // Memoized Message Component to prevent unnecessary re-renders
@@ -138,12 +136,10 @@ const MessageItem: React.FC<MessageItemProps> = React.memo(({
 
 MessageItem.displayName = 'MessageItem';
 
-export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onChatCreated, isAnonymous = false }) => {
+export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onChatCreated }) => {
   const [inputValue, setInputValue] = useState('')
   const [textAreaHeight, setTextAreaHeight] = useState<number>(40)
-  const [selectedModel, setSelectedModel] = useState<string>('gemini-2.5-flash')
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
-  const availableModels = ['gemini-2.5-flash', 'gemini-2.5-pro']
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const notifiedChatIdsRef = useRef<Set<string>>(new Set())
@@ -163,7 +159,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
     sendMessage,
     clearError,
     resetChat
-  } = useChat({ isAnonymous })
+  } = useChat()
 
   // Reset state when currentChatId becomes undefined (going to home)
   useEffect(() => {
@@ -239,12 +235,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
     if (!currentChat) {
       await createChat({
         title: t('chat.new_chat'),
-      initialMessage: messageContent,
-      model: selectedModel
+        initialMessage: messageContent
       })
     } else {
-      // Send message to existing chat
-    await sendMessage(messageContent, { model: selectedModel })
+      await sendMessage(messageContent)
     }
   }
 
@@ -339,28 +333,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
         </div>
       )}
         
-        {/* Input Area */}
+        {/* Input Area - single line, fully rounded like search */}
         <div className="px-6 mt-1">
           <div className="relative">
-            <div
-              className="aic-input-container"
-              style={{
-                // compute pill factor from height (min ~40px, max ~40vh)
-                // clamp to [0,1]
-                // @ts-ignore: CSS var inline
-                '--pillFactor': (() => {
-                  const minH = 40
-                  const maxH = typeof window !== 'undefined' ? Math.round(window.innerHeight * 0.4) : 320
-                  const h = Math.max(minH, Math.min(textAreaHeight, maxH))
-                  const ratio = (maxH - h) / (maxH - minH)
-                  return Math.max(0, Math.min(1, Number.isFinite(ratio) ? ratio : 1))
-                })()
-              }}
-            >
+            <div className="aic-input-container aic-input-container--pill">
               <label htmlFor="chat-input" className="sr-only">
                 {t('chat.type_message')}
               </label>
-              <div className="relative">
+              <div className="relative flex items-center">
                 <TextArea
                   id="chat-input"
                   ariaLabelledBy={undefined}
@@ -371,14 +351,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
                   placeholder={t('chat.type_message')}
                   disabled={isLoading}
                   minRows={1}
-                  maxHeightVh={40}
+                  maxHeightVh={5}
                   onHeightChange={setTextAreaHeight}
-                  className="aic-textarea--withSend"
+                  className="aic-textarea--withSend aic-textarea--singleLine"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="absolute right-2 bottom-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   type="button"
                   aria-label={t('chat.send') ?? 'Invia'}
                   title={t('chat.send') ?? 'Invia'}
@@ -394,50 +374,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
                 </button>
               </div>
             </div>
-            {/* Model selector overlay - positioned outside container to avoid clipping */}
-            <Listbox value={selectedModel} onChange={setSelectedModel}>
-              <div className="absolute left-3.5 bottom-3.5 text-xs z-[70]">
-                <Listbox.Button
-                  className="px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 bg-transparent hover:bg-gray-50/30 dark:hover:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-700 border-none outline-none rounded shadow-none inline-flex items-center gap-1 transition-colors"
-                  aria-label={t('chat.model') ?? 'Model'}
-                >
-                  {selectedModel.replace('gemini-2.5-', 'gemini 2.5 ')}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                    className="w-3.5 h-3.5 opacity-70"
-                  >
-                    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.084l3.71-3.853a.75.75 0 111.08 1.04l-4.24 4.4a.75.75 0 01-1.08 0l-4.24-4.4a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-                  </svg>
-                </Listbox.Button>
-                <Transition
-                  as={Fragment}
-                  leave="transition ease-in duration-100"
-                  leaveFrom="opacity-100"
-                  leaveTo="opacity-0"
-                >
-                  <Listbox.Options
-                    className="absolute left-0 top-full mt-1 max-h-60 w-max min-w-[10rem] overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-xs shadow-lg ring-1 ring-black/5 dark:ring-white/10 focus:outline-none z-[90] pointer-events-auto transition-colors"
-                  >
-                    {availableModels.map((model) => (
-                      <Listbox.Option
-                        key={model}
-                        value={model}
-                        className={({ active, selected }: { active: boolean; selected: boolean }) => `
-                          cursor-pointer select-none px-3 py-1.5 rounded transition-colors
-                          ${active ? 'bg-sky-100/50 dark:bg-sky-800/50 text-sky-800 dark:text-sky-200' : 'text-gray-700 dark:text-gray-300'}
-                          ${selected ? 'font-medium' : 'font-normal'}
-                        `}
-                      >
-                        {model.replace('gemini-2.5-', 'gemini 2.5 ')}
-                      </Listbox.Option>
-                    ))}
-                  </Listbox.Options>
-                </Transition>
-              </div>
-            </Listbox>
           </div>
         </div>
       </div>
