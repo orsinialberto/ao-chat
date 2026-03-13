@@ -89,7 +89,6 @@ function App() {
 
 ## Documentation
 
-- [Documentation Overview](./docs/README.md)
-- [Frontend Architecture](./docs/architecture/frontend.md)
-- [Frontend Testing](./docs/development/testing/frontend-testing.md)
+- **Architecture**: overall frontend design and data flow — see `./docs/ARCHITECTURE.md`
+- **API implementation**: how to implement the backend endpoints required by the chat — see `./docs/api-implementation.md`
 
