@@ -52,21 +52,6 @@ describe('useSidebar', () => {
     expect(result.current.error).toBe(null);
   });
 
-  it('should create new chat return null (chat created on first message)', async () => {
-    const { result } = renderHook(() => useSidebar());
-
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
-    let createdChat;
-    await act(async () => {
-      createdChat = await result.current.createNewChat();
-    });
-
-    expect(createdChat).toBe(null);
-  });
-
   it('should update chat title in sessionStorage', async () => {
     vi.mocked(AnonymousChatService.getChats).mockReturnValue([mockChats[0]]);
 

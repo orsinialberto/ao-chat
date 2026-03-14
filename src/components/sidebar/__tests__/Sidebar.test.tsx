@@ -24,10 +24,8 @@ vi.mock('../../../hooks/useSidebar', () => ({
     error: null,
     updateChatTitle: vi.fn(),
     deleteChat: vi.fn(),
-    createNewChat: vi.fn().mockResolvedValue(null),
     addChat: vi.fn(),
-    clearError: vi.fn(),
-    loadChats: vi.fn()
+    clearError: vi.fn()
   })
 }));
 

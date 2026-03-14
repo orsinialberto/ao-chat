@@ -20,11 +20,6 @@ export interface UseChatReturn {
   resetChat: () => void;
 }
 
-export interface UseChatOptions {
-  /** @deprecated Single anonymous mode only; option kept for API compatibility */
-  isAnonymous?: boolean;
-}
-
 /**
  * Convert API error response to localized error message
  */
@@ -61,7 +56,7 @@ function getErrorMessage(response: ApiResponse<any>, context: 'send' | 'load' | 
 const TYPEWRITER_CHAR_DELAY_MS = 20;
 const TYPEWRITER_CHUNK_SIZE = 2;
 
-export const useChat = (_options: UseChatOptions = {}): UseChatReturn => {
+export const useChat = (): UseChatReturn => {
   const { apiService } = useServices();
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);

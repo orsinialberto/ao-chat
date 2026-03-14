@@ -36,7 +36,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     error,
     updateChatTitle,
     deleteChat,
-    createNewChat,
     addChat,
     clearError
   } = useSidebar();
@@ -56,8 +55,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onChatSelect(chatId);
   };
 
-  const handleNewChat = async () => {
-    await createNewChat();
+  const handleNewChat = () => {
     onNewChat();
   };
 

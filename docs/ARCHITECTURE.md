@@ -36,8 +36,7 @@ src/
 │   └── ThemeContext.tsx     # Light/dark theme (localStorage + system preference)
 ├── hooks/
 │   ├── useChat.ts           # Chat lifecycle: create, load, send message, streaming + typewriter
-│   ├── useSidebar.ts        # Sidebar state and actions (chat list, select, rename, delete)
-│   └── useTranslation.ts    # Thin wrapper over i18n for UI strings
+│   └── useSidebar.ts        # Sidebar state and actions (chat list, rename, delete, add)
 ├── services/
 │   ├── api.ts               # ApiService: createAnonymousChat, sendAnonymousMessageStream (SSE)
 │   └── anonymousChatService.ts  # Session-storage persistence for chat list
@@ -137,8 +136,7 @@ The base URL is configured in `ServiceContext`:
   - Detects browser language.
   - Provides translation dictionaries.
   - Exposes a `t(key)` function.
-- `useTranslation` is a hook that returns `{ t }` for components.
-- Error messages and some UI text in `useChat` and `ChatInterface` use `t()` for localization.
+- Error messages and UI text in `useChat` and `ChatInterface` use `t()` from i18n for localization.
 
 ### Testing
 

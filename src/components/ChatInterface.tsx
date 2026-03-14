@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useChat } from '../hooks/useChat'
 import { Message, Chat } from '../services/api'
 import { MarkdownRenderer } from './MarkdownRenderer'
-import { useTranslation } from '../hooks/useTranslation'
+import { t } from '../utils/i18n'
 import { TextArea } from './TextArea'
 
 interface ChatInterfaceProps {
@@ -146,7 +146,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
   const lastAutoScrollTimeRef = useRef(0)
   const SCROLL_NEAR_BOTTOM_PX = 80
   const AUTO_SCROLL_THROTTLE_MS = 150
-  const { t } = useTranslation()
   const {
     currentChat,
     messages,
