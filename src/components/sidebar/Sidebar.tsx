@@ -86,7 +86,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {isOpen ? (
             <>
               {/* Header & quick actions */}
-              <div className="pl-4 pr-6 pt-6 pb-4 border-b border-gray-200 dark:border-gray-700 space-y-4">
+              <div className="pl-4 pr-6 pt-6 pb-4 space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <button
                     onClick={handleHomeClick}
@@ -98,9 +98,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       alt="AI" 
                       className="w-10 h-10 group-hover/logo:scale-105 transition-transform"
                     />
-                    <div className="text-left">
-                      <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Workspace</p>
-                      <span className="text-2xl font-light text-gray-800 dark:text-gray-100 tracking-wider whitespace-nowrap">AI Agent</span>
+                    <div className="text-left">                      
+                      <span className="text-2xl font-light text-gray-800 dark:text-gray-100 tracking-wider whitespace-nowrap">AO Chat</span>
                     </div>
                   </button>
 
@@ -138,9 +137,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Chats Title */}
-              <div className="pl-4 pr-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
-                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Chats</p>
-                <h1 className="text-lg font-medium text-gray-800 dark:text-gray-100">Inbox</h1>
+              <div className="pl-4 pr-6 pt-4 pb-1.5 border-b border-gray-200 dark:border-gray-700">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Chats</p>
               </div>
             </>
           ) : (

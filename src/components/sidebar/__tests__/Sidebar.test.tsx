@@ -51,7 +51,7 @@ describe('Sidebar', () => {
       />
     );
 
-    expect(screen.getByText('Inbox')).toBeInTheDocument();
+    expect(screen.getByText('Chats')).toBeInTheDocument();
     expect(screen.getByTitle('New Chat')).toBeInTheDocument();
     expect(screen.getByText('Test Chat 1')).toBeInTheDocument();
     expect(screen.getByText('Test Chat 2')).toBeInTheDocument();
