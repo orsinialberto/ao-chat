@@ -355,7 +355,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ currentChatId, onC
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="absolute right-2 bottom-2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   type="button"
                   aria-label={t('chat.send') ?? 'Invia'}
                   title={t('chat.send') ?? 'Invia'}
