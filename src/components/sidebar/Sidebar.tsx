@@ -22,8 +22,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggle,
   onHomeClick
 }) => {
-  const [showChatList, setShowChatList] = React.useState(true);
-
   const handleHomeClick = () => {
     if (onHomeClick) {
       onHomeClick();
@@ -140,25 +138,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Chats Title */}
-              <div className="pl-4 pr-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Chats</p>
-                  <h1 className="text-lg font-medium text-gray-800 dark:text-gray-100">Inbox</h1>
-                </div>
-                <button
-                  className={`sidebar-ghost-btn -mr-4 transition-transform duration-200 ${showChatList ? 'rotate-180' : ''}`}
-                  title={showChatList ? "Hide chats" : "Show chats"}
-                  onClick={() => setShowChatList(!showChatList)}
-                >
-                  <svg 
-                    className="w-4 h-4"
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+              <div className="pl-4 pr-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Chats</p>
+                <h1 className="text-lg font-medium text-gray-800 dark:text-gray-100">Inbox</h1>
               </div>
             </>
           ) : (
@@ -204,35 +186,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           {isOpen && (
-            <>
-              {/* Chat List */}
-              {showChatList ? (
-                <div className="flex-1 overflow-y-auto scrollbar-hide">
-                  {showEmptyState ? (
-                    <div className="pl-4 pr-6 py-8 text-center text-gray-400 dark:text-gray-500">
-                      <p className="text-sm">No chats yet</p>
-                      <p className="text-xs mt-1">Create your first chat to get started</p>
-                    </div>
-                  ) : (
-                    <ChatList
-                      chats={chats}
-                      currentChatId={currentChatId}
-                      isLoading={isLoading}
-                      error={error}
-                      onChatSelect={handleChatSelect}
-                      onUpdateTitle={updateChatTitle}
-                      onDeleteChat={deleteChat}
-                      onClearError={clearError}
-                    />
-                  )}
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
+              {showEmptyState ? (
+                <div className="pl-4 pr-6 py-8 text-center text-gray-400 dark:text-gray-500">
+                  <p className="text-sm">No chats yet</p>
+                  <p className="text-xs mt-1">Create your first chat to get started</p>
                 </div>
               ) : (
-                <div className="flex-1 flex items-center justify-center text-sm text-gray-400 dark:text-gray-500">
-                  Chats hidden
-                </div>
+                <ChatList
+                  chats={chats}
+                  currentChatId={currentChatId}
+                  isLoading={isLoading}
+                  error={error}
+                  onChatSelect={handleChatSelect}
+                  onUpdateTitle={updateChatTitle}
+                  onDeleteChat={deleteChat}
+                  onClearError={clearError}
+                />
               )}
-
-            </>
+            </div>
           )}
         </div>
       </div>
