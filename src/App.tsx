@@ -42,7 +42,7 @@ function ThemeFloatingToggle() {
 function MainApp() {
   const [currentChatId, setCurrentChatId] = useState<string | undefined>()
   const [resetKey, setResetKey] = useState(0)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const addChatToSidebarRef = useRef<((chat: Chat) => void) | null>(null)
 
   const handleChatSelect = (chatId: string) => {
