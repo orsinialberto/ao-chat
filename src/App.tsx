@@ -77,7 +77,7 @@ function MainApp() {
         />
 
         <main className="flex-1 overflow-hidden flex justify-center items-center py-6">
-          <div className="w-full max-w-4xl px-4">
+          <div className="w-full max-w-3xl px-4">
             <ChatInterface
               key={resetKey}
               currentChatId={currentChatId}
