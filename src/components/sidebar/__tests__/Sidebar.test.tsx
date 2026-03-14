@@ -53,7 +53,6 @@ describe('Sidebar', () => {
 
     expect(screen.getByText('Inbox')).toBeInTheDocument();
     expect(screen.getByTitle('New Chat')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Search chats')).toBeInTheDocument();
     expect(screen.getByText('Test Chat 1')).toBeInTheDocument();
     expect(screen.getByText('Test Chat 2')).toBeInTheDocument();
   });

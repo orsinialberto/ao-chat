@@ -23,7 +23,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onHomeClick
 }) => {
   const [showChatList, setShowChatList] = React.useState(true);
-  const [searchTerm, setSearchTerm] = React.useState('');
 
   const handleHomeClick = () => {
     if (onHomeClick) {
@@ -44,23 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     clearError
   } = useSidebar();
 
-  const normalizedSearch = searchTerm.trim().toLowerCase();
-  const filteredChats = React.useMemo(
-    () =>
-      chats.filter((chat) =>
-        (chat.title || 'Untitled chat')
-          .toLowerCase()
-          .includes(normalizedSearch)
-      ),
-    [chats, normalizedSearch]
-  );
-
-  const hasSearch = normalizedSearch.length > 0;
-  const visibleChats = hasSearch ? filteredChats : chats;
-  const showEmptyState = !isLoading && !error && visibleChats.length === 0;
-  const emptyStateLabel = hasSearch
-    ? 'No chats match your search'
-    : 'No chats yet';
+  const showEmptyState = !isLoading && !error && chats.length === 0;
 
   // Expose addChat to parent component
   React.useEffect(() => {
@@ -79,8 +62,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     await createNewChat();
     onNewChat();
   };
-
-  const handleClearSearch = () => setSearchTerm('');
 
   return (
     <>
@@ -158,52 +139,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </div>
               </div>
 
-              {/* Chats Title + search */}
-              <div className="pl-4 pr-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700">
+              {/* Chats Title */}
+              <div className="pl-4 pr-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-[0.3em] text-gray-400 dark:text-gray-500">Chats</p>
                   <h1 className="text-lg font-medium text-gray-800 dark:text-gray-100">Inbox</h1>
                 </div>
-
-                <div className="mt-4 flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <span className="absolute inset-y-0 left-3 flex items-center text-gray-400 dark:text-gray-500">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
-                      </svg>
-                    </span>
-                    <input
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      placeholder="Search chats"
-                      className="w-full pl-10 pr-10 py-2 text-sm rounded-full bg-white dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-600 text-gray-700 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
-                    />
-                    {searchTerm && (
-                      <button
-                        onClick={handleClearSearch}
-                        className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600"
-                        title="Clear search"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                  <button
-                    className={`sidebar-ghost-btn -mr-4 transition-transform duration-200 ${showChatList ? 'rotate-180' : ''}`}
-                    title={showChatList ? "Hide chats" : "Show chats"}
-                    onClick={() => setShowChatList(!showChatList)}
+                <button
+                  className={`sidebar-ghost-btn -mr-4 transition-transform duration-200 ${showChatList ? 'rotate-180' : ''}`}
+                  title={showChatList ? "Hide chats" : "Show chats"}
+                  onClick={() => setShowChatList(!showChatList)}
+                >
+                  <svg 
+                    className="w-4 h-4"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
                   >
-                    <svg 
-                      className="w-4 h-4"
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
             </>
           ) : (
@@ -255,14 +210,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div className="flex-1 overflow-y-auto scrollbar-hide">
                   {showEmptyState ? (
                     <div className="pl-4 pr-6 py-8 text-center text-gray-400 dark:text-gray-500">
-                      <p className="text-sm">{emptyStateLabel}</p>
-                      {!hasSearch && (
-                        <p className="text-xs mt-1">Create your first chat to get started</p>
-                      )}
+                      <p className="text-sm">No chats yet</p>
+                      <p className="text-xs mt-1">Create your first chat to get started</p>
                     </div>
                   ) : (
                     <ChatList
-                      chats={visibleChats}
+                      chats={chats}
                       currentChatId={currentChatId}
                       isLoading={isLoading}
                       error={error}
